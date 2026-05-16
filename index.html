@@ -227,36 +227,15 @@ async function generate() {
   setStep(2); await delay(500);
   setStep(3);
 
-  const prompt = `You are a TikTok/Shorts content creator. Reply with ONLY valid JSON, no extra text.
+  const prompt = `Reply with ONLY a JSON object. No explanation. No markdown. Just the JSON.
+
+Create TikTok short video content.
 Topic: ${topic}
 Style: ${selectedStyle}
-Language: casual Indonesian
 
-Fill this exact JSON (keep all field names exactly as shown):
-{
-  "script": "narasi bahasa Indonesia 60 detik, pisah kalimat pakai |",
-  "hook1": "hook pembuka 1",
-  "hook2": "hook pembuka 2",
-  "hook3": "hook pembuka 3",
-  "cta": "kalimat penutup",
-  "title": "judul video",
-  "hashtags": "#tag1 #tag2 #tag3 #tag4 #tag5",
-  "charName": "nama karakter",
-  "charLook": "english: gender, age, hair color, eye color, outfit, expression",
-  "charStyle": "art style contoh: 3D cinematic render",
-  "s1name": "scene 1 name",
-  "s1img": "english image generation prompt for scene 1, include character description, 9:16 portrait",
-  "s1vid": "camera motion for scene 1 eg: slow zoom in",
-  "s2name": "scene 2 name",
-  "s2img": "english image generation prompt for scene 2, include character description, 9:16 portrait",
-  "s2vid": "camera motion for scene 2",
-  "s3name": "scene 3 name",
-  "s3img": "english image generation prompt for scene 3, include character description, 9:16 portrait",
-  "s3vid": "camera motion for scene 3",
-  "s4name": "scene 4 name",
-  "s4img": "english image generation prompt for scene 4, include character description, 9:16 portrait",
-  "s4vid": "camera motion for scene 4"
-}`;
+IMPORTANT: You MUST fill every single field below. Do not leave any field empty.
+
+{"script":"[narasi bahasa Indonesia kasual 60 detik, pisah tiap kalimat dengan tanda |]","hook1":"[kalimat hook pembuka yang menarik perhatian dalam 1 detik]","hook2":"[hook alternatif 2]","hook3":"[hook alternatif 3]","cta":"[ajakan di akhir video]","title":"[judul video yang menarik]","hashtags":"[5 hashtag relevan]","charName":"[nama karakter utama video ini]","charLook":"[describe in english: gender, approximate age, hair color and style, eye color, outfit color and style, facial expression]","charStyle":"[art style in english, example: 3D cinematic render, anime style, photorealistic]","s1name":"[scene 1 short name]","s1img":"[detailed english prompt for AI image generator, portrait 9:16, include full character description from charLook, describe setting and lighting]","s1vid":"[camera movement in english, example: slow zoom in, pan right, static shot]","s2name":"[scene 2 short name]","s2img":"[detailed english prompt for AI image generator, portrait 9:16, include full character description from charLook, describe setting and lighting]","s2vid":"[camera movement in english]","s3name":"[scene 3 short name]","s3img":"[detailed english prompt for AI image generator, portrait 9:16, include full character description from charLook, describe setting and lighting]","s3vid":"[camera movement in english]","s4name":"[scene 4 short name]","s4img":"[detailed english prompt for AI image generator, portrait 9:16, include full character description from charLook, describe setting and lighting]","s4vid":"[camera movement in english]"}`;
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
