@@ -1,0 +1,2 @@
+# Auto-short
+Tester autoshort
