@@ -6,524 +6,177 @@
 <title>AutoShorts AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --accent: #00ff88;
-    --accent2: #ff3d6e;
-    --accent3: #7c6aff;
-    --text: #e8e8f0;
-    --muted: #5a5a7a;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 24px 16px 80px;
-  }
-
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-top: 20px;
-  }
-
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .tagline {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-
-  /* Input section */
-  .input-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  .label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    padding: 14px;
-    resize: none;
-    height: 90px;
-    outline: none;
-    transition: border-color 0.2s;
-    line-height: 1.5;
-  }
-
-  textarea:focus { border-color: var(--accent3); }
-  textarea::placeholder { color: var(--muted); }
-
-  /* Style selector */
-  .style-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-
-  .style-btn {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 6px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.5px;
-  }
-
-  .style-btn.active {
-    border-color: var(--accent3);
-    color: var(--accent3);
-    background: rgba(124,106,255,0.1);
-  }
-
-  /* Generate button */
-  .gen-btn {
-    width: 100%;
-    background: var(--accent);
-    border: none;
-    border-radius: 12px;
-    color: #000;
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    padding: 16px;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: all 0.2s;
-    margin-top: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .gen-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,255,136,0.3); }
-  .gen-btn:active { transform: translateY(0); }
-  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  /* Loading */
-  .loading {
-    display: none;
-    text-align: center;
-    padding: 32px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    margin-bottom: 16px;
-  }
-
-  .loading.show { display: block; }
-
-  .loading-steps {
-    list-style: none;
-    text-align: left;
-    display: inline-block;
-    margin-top: 16px;
-  }
-
-  .loading-steps li {
-    font-size: 12px;
-    color: var(--muted);
-    padding: 4px 0;
-    transition: color 0.3s;
-  }
-
-  .loading-steps li.active { color: var(--accent); }
-  .loading-steps li.done { color: var(--text); }
-  .loading-steps li::before { content: '○ '; }
-  .loading-steps li.active::before { content: '◉ '; color: var(--accent); }
-  .loading-steps li.done::before { content: '● '; color: var(--accent); }
-
-  .spinner {
-    width: 36px;
-    height: 36px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 12px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Result cards */
-  .results { display: none; }
-  .results.show { display: block; }
-
-  .result-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 12px;
-    animation: slideUp 0.4s ease both;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .card-title.green { color: var(--accent); }
-  .card-title.pink { color: var(--accent2); }
-  .card-title.purple { color: var(--accent3); }
-
-  .copy-btn {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-  }
-
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
-
-  .card-content {
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--text);
-    white-space: pre-wrap;
-  }
-
-  /* Image prompts */
-  .prompt-item {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #aaa;
-  }
-
-  .prompt-num {
-    color: var(--accent3);
-    font-size: 10px;
-    margin-bottom: 4px;
-    letter-spacing: 1px;
-  }
-
-  /* Hooks */
-  .hook-tag {
-    display: inline-block;
-    background: rgba(255,61,110,0.1);
-    border: 1px solid rgba(255,61,110,0.3);
-    border-radius: 6px;
-    color: var(--accent2);
-    font-size: 11px;
-    padding: 4px 10px;
-    margin: 4px 4px 4px 0;
-  }
-
-  /* Next steps */
-  .next-card {
-    background: rgba(124,106,255,0.05);
-    border: 1px solid rgba(124,106,255,0.2);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 12px;
-    animation: slideUp 0.4s ease 0.3s both;
-  }
-
-  .next-step {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .next-step:last-child { border-bottom: none; }
-
-  .step-num {
-    background: var(--accent3);
-    color: #fff;
-    border-radius: 6px;
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    flex-shrink: 0;
-    font-family: 'Syne', sans-serif;
-  }
-
-  .step-text { font-size: 12px; line-height: 1.5; color: #aaa; }
-  .step-text strong { color: var(--text); }
-
-  /* Error */
-  .error-card {
-    background: rgba(255,61,110,0.05);
-    border: 1px solid rgba(255,61,110,0.3);
-    border-radius: 12px;
-    padding: 16px;
-    font-size: 12px;
-    color: var(--accent2);
-    display: none;
-    margin-bottom: 12px;
-  }
-
-  .error-card.show { display: block; }
-
-  /* Reset btn */
-  .reset-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-
-  .reset-btn:hover { border-color: var(--muted); color: var(--text); }
+:root{--bg:#0a0a0f;--surface:#12121a;--border:#1e1e2e;--accent:#00ff88;--accent2:#ff3d6e;--accent3:#7c6aff;--text:#e8e8f0;--muted:#5a5a7a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:24px 16px 80px}
+.header{text-align:center;margin-bottom:40px;padding-top:20px}
+.logo{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tagline{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:6px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:block}
+textarea,input[type=password]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:12px;outline:none;transition:border-color .2s}
+textarea{resize:none;height:90px;line-height:1.5}
+textarea:focus,input:focus{border-color:var(--accent3)}
+textarea::placeholder,input::placeholder{color:var(--muted)}
+.row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.style-btn{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:6px 12px;cursor:pointer;transition:all .2s}
+.style-btn.active{border-color:var(--accent3);color:var(--accent3);background:rgba(124,106,255,.1)}
+.gen-btn{width:100%;background:var(--accent);border:none;border-radius:12px;color:#000;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;padding:16px;cursor:pointer;margin-top:16px;transition:all .2s}
+.gen-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,255,136,.3)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.save-btn{background:var(--accent3);border:none;border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:12px 16px;cursor:pointer;white-space:nowrap}
+.loading{display:none;text-align:center;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:16px}
+.loading.show{display:block}
+.spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.steps-list{list-style:none;text-align:left;display:inline-block;margin-top:16px}
+.steps-list li{font-size:12px;color:var(--muted);padding:4px 0}
+.steps-list li::before{content:'○ '}
+.steps-list li.active{color:var(--accent)}
+.steps-list li.active::before{content:'◉ '}
+.steps-list li.done{color:var(--text)}
+.steps-list li.done::before{content:'● ';color:var(--accent)}
+.results{display:none}
+.results.show{display:block}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;animation:slideUp .4s ease both}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.card-title.green{color:var(--accent)}.card-title.pink{color:var(--accent2)}.card-title.purple{color:var(--accent3)}
+.copy-btn{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.copy-btn:hover,.copy-btn.copied{border-color:var(--accent);color:var(--accent)}
+.card-content{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap}
+.prompt-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px;line-height:1.6}
+.prompt-num{color:var(--accent3);font-size:10px;margin-bottom:6px;letter-spacing:1px;font-weight:bold}
+.prompt-label{font-size:10px;letter-spacing:1px;margin-bottom:3px}
+.hook-tag{display:inline-block;background:rgba(255,61,110,.1);border:1px solid rgba(255,61,110,.3);border-radius:6px;color:var(--accent2);font-size:11px;padding:4px 10px;margin:4px 4px 4px 0}
+.next-card{background:rgba(124,106,255,.05);border:1px solid rgba(124,106,255,.2);border-radius:16px;padding:20px;margin-bottom:12px}
+.next-step{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.next-step:last-child{border-bottom:none}
+.step-num{background:var(--accent3);color:#fff;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'Syne',sans-serif}
+.step-text{font-size:12px;line-height:1.5;color:#aaa}
+.step-text strong{color:var(--text)}
+.error-card{background:rgba(255,61,110,.05);border:1px solid rgba(255,61,110,.3);border-radius:12px;padding:16px;font-size:12px;color:var(--accent2);display:none;margin-bottom:12px}
+.error-card.show{display:block}
+.reset-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;padding:12px;cursor:pointer;transition:all .2s;margin-top:8px}
+.reset-btn:hover{border-color:var(--muted);color:var(--text)}
 </style>
 </head>
 <body>
 <div class="container">
-
   <div class="header">
     <div class="logo">AutoShorts AI</div>
     <div class="tagline">Generator Konten Otomatis</div>
   </div>
 
-  <!-- API Key Setup -->
-  <div class="input-card" id="apiSetup">
+  <div class="card">
     <span class="label">🔑 Groq API Key</span>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6;">
-      Daftar gratis di <strong style="color:var(--accent)">console.groq.com</strong> → API Keys → Create → Paste di sini
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Daftar gratis di <strong style="color:var(--accent)">console.groq.com</strong> → API Keys → Create → Paste di sini</div>
+    <div style="display:flex;gap:8px">
+      <input type="password" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
+      <button class="save-btn" onclick="saveKey()">SIMPAN</button>
     </div>
-    <div style="display:flex;gap:8px;">
-      <input type="password" id="apiKeyInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx"
-        style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;
-        color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:12px;outline:none;">
-      <button onclick="saveKey()"
-        style="background:var(--accent3);border:none;border-radius:10px;color:#fff;
-        font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:12px 16px;cursor:pointer;">
-        SIMPAN
-      </button>
-    </div>
-    <div id="keyStatus" style="font-size:11px;margin-top:8px;color:var(--muted);"></div>
+    <div id="keyStatus" style="font-size:11px;margin-top:8px;color:var(--muted)"></div>
   </div>
 
-  <!-- Input -->
-  <div class="input-card">
+  <div class="card">
     <span class="label">Topik Konten</span>
-    <textarea id="topicInput" placeholder="Contoh: 5 fakta unik tentang otak manusia yang jarang diketahui..."></textarea>
-
-    <div class="style-row">
-      <button class="style-btn active" onclick="selectStyle(this, 'edukatif')">📚 Edukatif</button>
-      <button class="style-btn" onclick="selectStyle(this, 'motivasi')">🔥 Motivasi</button>
-      <button class="style-btn" onclick="selectStyle(this, 'fakta')">⚡ Fakta Viral</button>
-      <button class="style-btn" onclick="selectStyle(this, 'tutorial')">🛠️ Tutorial</button>
+    <textarea id="topicInput" placeholder="Contoh: 5 fakta unik tentang otak manusia..."></textarea>
+    <div class="row">
+      <button class="style-btn active" onclick="selectStyle(this,'edukatif')">📚 Edukatif</button>
+      <button class="style-btn" onclick="selectStyle(this,'motivasi')">🔥 Motivasi</button>
+      <button class="style-btn" onclick="selectStyle(this,'fakta viral')">⚡ Fakta Viral</button>
+      <button class="style-btn" onclick="selectStyle(this,'tutorial')">🛠️ Tutorial</button>
     </div>
   </div>
 
-  <button class="gen-btn" id="genBtn" onclick="generate()">
-    ⚡ Generate Konten
-  </button>
+  <button class="gen-btn" id="genBtn" onclick="generate()">⚡ Generate Konten</button>
 
-  <!-- Error -->
   <div class="error-card" id="errorCard"></div>
 
-  <!-- Loading -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <div style="font-size:12px;color:var(--muted);letter-spacing:1px;">GENERATING...</div>
-    <ul class="loading-steps" id="loadingSteps">
-      <li id="step1">Analisa topik</li>
-      <li id="step2">Tulis script narasi</li>
-      <li id="step3">Buat image prompts</li>
-      <li id="step4">Susun hook & CTA</li>
+    <div style="font-size:12px;color:var(--muted);letter-spacing:1px">GENERATING...</div>
+    <ul class="steps-list">
+      <li id="ls1">Analisa topik</li>
+      <li id="ls2">Tulis script narasi</li>
+      <li id="ls3">Buat image & video prompts</li>
+      <li id="ls4">Finalisasi output</li>
     </ul>
   </div>
 
-  <!-- Results -->
   <div class="results" id="results">
-
-    <!-- Script -->
-    <div class="result-card" style="animation-delay:0s">
+    <div class="result-card">
       <div class="card-header">
         <span class="card-title green">📝 Script Narasi</span>
-        <button class="copy-btn" onclick="copyText('scriptContent', this)">COPY</button>
+        <button class="copy-btn" onclick="copyEl('scriptContent',this)">COPY</button>
       </div>
       <div class="card-content" id="scriptContent"></div>
     </div>
 
-    <!-- Hooks -->
-    <div class="result-card" style="animation-delay:0.1s">
+    <div class="result-card" style="animation-delay:.1s">
       <div class="card-header">
         <span class="card-title pink">🎣 Hook & CTA</span>
-        <button class="copy-btn" onclick="copyText('hooksContent', this)">COPY</button>
+        <button class="copy-btn" onclick="copyEl('hooksContent',this)">COPY</button>
       </div>
       <div id="hooksContent"></div>
     </div>
 
-    <!-- Karakter -->
-    <div class="result-card" style="animation-delay:0.15s">
+    <div class="result-card" style="animation-delay:.15s">
       <div class="card-header">
         <span class="card-title green">👤 Karakter Konsisten</span>
-        <button class="copy-btn" onclick="copyText('characterContent', this)">COPY</button>
+        <button class="copy-btn" onclick="copyEl('charContent',this)">COPY</button>
       </div>
-      <div id="characterContent"></div>
+      <div id="charContent"></div>
     </div>
 
-    <!-- Image + Video Prompts -->
-    <div class="result-card" style="animation-delay:0.2s">
+    <div class="result-card" style="animation-delay:.2s">
       <div class="card-header">
         <span class="card-title purple">🖼️🎬 Image & Video Prompts</span>
-        <span style="font-size:10px;color:var(--muted);">Per scene</span>
+        <span style="font-size:10px;color:var(--muted)">Per scene · 9:16</span>
       </div>
-      <div id="imagePrompts"></div>
+      <div id="scenesContent"></div>
     </div>
 
-    <!-- Next Steps -->
-    <div class="next-card">
-      <div class="card-header">
-        <span class="card-title purple">🚀 Langkah Selanjutnya</span>
-      </div>
-      <div class="next-step">
-        <div class="step-num">1</div>
-        <div class="step-text"><strong>Copy script</strong> → Paste ke ElevenLabs.io → Download audio MP3</div>
-      </div>
-      <div class="next-step">
-        <div class="step-num">2</div>
-        <div class="step-text"><strong>Copy image prompt</strong> → Canva AI atau Bing Image Creator → Set ukuran <strong style="color:var(--accent)">1080 × 1920 (9:16)</strong> sebelum generate</div>
-      </div>
-      <div class="next-step">
-        <div class="step-num">3</div>
-        <div class="step-text"><strong>Copy video prompt</strong> → Paste ke Runway / Kling / CapCut AI → Set rasio <strong style="color:var(--accent)">9:16 portrait</strong> sebelum render</div>
-      </div>
-      <div class="next-step">
-        <div class="step-num">4</div>
-        <div class="step-text"><strong>Buka CapCut</strong> → New Project → Pilih <strong style="color:var(--accent)">9:16</strong> → Import audio + video → Auto caption → Export</div>
-      </div>
-      <div class="next-step">
-        <div class="step-num">5</div>
-        <div class="step-text"><strong>Upload</strong> ke TikTok & YouTube Shorts dengan hook sebagai caption</div>
-      </div>
+    <div class="next-card" style="animation-delay:.3s">
+      <div class="card-header"><span class="card-title purple">🚀 Langkah Selanjutnya</span></div>
+      <div class="next-step"><div class="step-num">1</div><div class="step-text"><strong>Copy script</strong> → Paste ke ElevenLabs.io → Download audio MP3</div></div>
+      <div class="next-step"><div class="step-num">2</div><div class="step-text"><strong>Copy image prompt</strong> → Canva AI / Bing Image Creator → Set ukuran <strong style="color:var(--accent)">1080×1920 (9:16)</strong></div></div>
+      <div class="next-step"><div class="step-num">3</div><div class="step-text"><strong>Copy video prompt</strong> → Runway / Kling / CapCut AI → Set rasio <strong style="color:var(--accent)">9:16 portrait</strong></div></div>
+      <div class="next-step"><div class="step-num">4</div><div class="step-text"><strong>Buka CapCut</strong> → New Project → Pilih <strong style="color:var(--accent)">9:16</strong> → Import audio + video → Auto caption → Export</div></div>
+      <div class="next-step"><div class="step-num">5</div><div class="step-text"><strong>Upload</strong> ke TikTok & YouTube Shorts dengan hook sebagai caption</div></div>
     </div>
 
     <button class="reset-btn" onclick="reset()">↩ Buat Konten Baru</button>
   </div>
-
 </div>
 
 <script>
 let selectedStyle = 'edukatif';
-let groqApiKey = localStorage.getItem('groq_api_key') || '';
+let apiKey = localStorage.getItem('groq_key') || '';
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (groqApiKey) {
-    document.getElementById('keyStatus').innerHTML = `<span style="color:var(--accent)">✓ API Key tersimpan</span> — <span style="cursor:pointer;text-decoration:underline;" onclick="clearKey()">Ganti</span>`;
+  if (apiKey) {
     document.getElementById('apiKeyInput').value = '••••••••••••••••••••';
+    document.getElementById('keyStatus').innerHTML = '<span style="color:var(--accent)">✓ API Key tersimpan</span> — <span style="cursor:pointer;text-decoration:underline" onclick="clearKey()">Ganti</span>';
   }
 });
 
 function saveKey() {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if (!val || val.startsWith('•')) return;
-  if (!val.startsWith('gsk_')) {
-    document.getElementById('keyStatus').innerHTML = '<span style="color:var(--accent2)">⚠ Format salah. Harus diawali gsk_</span>';
-    return;
-  }
-  groqApiKey = val;
-  localStorage.setItem('groq_api_key', val);
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v || v.startsWith('•')) return;
+  if (!v.startsWith('gsk_')) { document.getElementById('keyStatus').innerHTML = '<span style="color:var(--accent2)">⚠ Harus diawali gsk_</span>'; return; }
+  apiKey = v;
+  localStorage.setItem('groq_key', v);
   document.getElementById('apiKeyInput').value = '••••••••••••••••••••';
-  document.getElementById('keyStatus').innerHTML = '<span style="color:var(--accent)">✓ Tersimpan!</span> — <span style="cursor:pointer;text-decoration:underline;" onclick="clearKey()">Ganti</span>';
+  document.getElementById('keyStatus').innerHTML = '<span style="color:var(--accent)">✓ Tersimpan!</span> — <span style="cursor:pointer;text-decoration:underline" onclick="clearKey()">Ganti</span>';
 }
 
 function clearKey() {
-  groqApiKey = '';
-  localStorage.removeItem('groq_api_key');
+  apiKey = '';
+  localStorage.removeItem('groq_key');
   document.getElementById('apiKeyInput').value = '';
   document.getElementById('keyStatus').textContent = '';
 }
@@ -534,14 +187,11 @@ function selectStyle(btn, style) {
   selectedStyle = style;
 }
 
-function copyText(id, btn) {
-  const el = document.getElementById(id);
-  const text = el.innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'COPIED!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
-  });
+function copyEl(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).innerText);
+  btn.textContent = 'COPIED!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
 }
 
 function reset() {
@@ -551,182 +201,138 @@ function reset() {
   document.getElementById('genBtn').disabled = false;
 }
 
-function setLoadingStep(stepIndex) {
-  const steps = document.querySelectorAll('#loadingSteps li');
-  steps.forEach((s, i) => {
-    s.classList.remove('active', 'done');
-    if (i < stepIndex) s.classList.add('done');
-    if (i === stepIndex) s.classList.add('active');
-  });
-}
-
-async function generate() {
-  const topic = document.getElementById('topicInput').value.trim();
-  if (!topic) {
-    document.getElementById('topicInput').focus();
-    return;
-  }
-
-  const genBtn = document.getElementById('genBtn');
-  const loading = document.getElementById('loading');
-  const results = document.getElementById('results');
-  const errorCard = document.getElementById('errorCard');
-
-  genBtn.disabled = true;
-  loading.classList.add('show');
-  results.classList.remove('show');
-  errorCard.classList.remove('show');
-
-  // Simulate loading steps
-  setLoadingStep(0);
-  await delay(600);
-  setLoadingStep(1);
-  await delay(500);
-  setLoadingStep(2);
-
-  const characterDesc = "young adult, short dark hair, bright eyes, casual modern outfit, friendly smile";
-
-  const prompt = `You are a professional content creator. Respond ONLY with valid JSON, no markdown, no backticks, no extra text before or after.
-
-Topic: "${topic}"
-Style: ${selectedStyle}
-Language: Indonesian (casual)
-
-Rules:
-- All JSON string values must use only double quotes
-- No newlines inside string values, use \\n instead
-- Keep all text concise
-
-JSON structure to fill:
-{"script":"narasi 60-90 detik bahasa Indonesia kasual pakai \\n antar kalimat","hook1":"hook pembuka pertama","hook2":"hook pembuka kedua","hook3":"hook pembuka ketiga","cta":"call to action penutup","charName":"nama karakter","charAppearance":"${characterDesc}, consistent character for all scenes","charStyle":"3D render cinematic","scene1name":"nama scene 1","scene1img":"english image prompt with character appearance included, 9:16 portrait, high quality","scene1vid":"camera motion for scene 1","scene2name":"nama scene 2","scene2img":"english image prompt with character appearance included, 9:16 portrait, high quality","scene2vid":"camera motion for scene 2","scene3name":"nama scene 3","scene3img":"english image prompt with character appearance included, 9:16 portrait, high quality","scene3vid":"camera motion for scene 3","scene4name":"nama scene 4","scene4img":"english image prompt with character appearance included, 9:16 portrait, high quality","scene4vid":"camera motion for scene 4","title":"judul video","hashtags":"#tag1 #tag2 #tag3 #tag4 #tag5"}`;
-
-  if (!groqApiKey) {
-    loading.classList.remove('show');
-    errorCard.textContent = '⚠️ Masukkan Groq API Key dulu ya bro!';
-    errorCard.classList.add('show');
-    genBtn.disabled = false;
-    return;
-  }
-
-  try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${groqApiKey}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        max_tokens: 1500,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    setLoadingStep(3);
-    await delay(400);
-
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
-    const raw = data.choices[0].message.content;
-
-    // Robust JSON extraction
-    let parsed;
-    try {
-      // Try 1: direct parse after cleanup
-      const clean = raw.replace(/```json|```/g, '').trim();
-      parsed = JSON.parse(clean);
-    } catch(e1) {
-      try {
-        // Try 2: extract JSON block between first { and last }
-        const start = raw.indexOf('{');
-        const end = raw.lastIndexOf('}');
-        if (start === -1 || end === -1) throw new Error('No JSON found');
-        const extracted = raw.slice(start, end + 1);
-        parsed = JSON.parse(extracted);
-      } catch(e2) {
-        try {
-          // Try 3: fix common issues - unescaped quotes, trailing commas
-          const start = raw.indexOf('{');
-          const end = raw.lastIndexOf('}');
-          let extracted = raw.slice(start, end + 1);
-          // Remove trailing commas before } or ]
-          extracted = extracted.replace(/,\s*([}\]])/g, '');
-          parsed = JSON.parse(extracted);
-        } catch(e3) {
-          throw new Error('Format response AI tidak valid. Coba generate ulang.');
-        }
-      }
-    }
-
-    // Script
-    document.getElementById('scriptContent').textContent = (parsed.script||'').replace(/\|/g,'\n');
-
-    // Hooks
-    const hooksEl = document.getElementById('hooksContent');
-    if (hooksEl) {
-      hooksEl.innerHTML = '';
-      (parsed.hooks || []).forEach(h => {
-        const tag = document.createElement('div');
-        tag.className = 'hook-tag';
-        tag.textContent = '🎬 ' + h;
-        hooksEl.appendChild(tag);
-      });
-      const ctaDiv = document.createElement('div');
-      ctaDiv.style.cssText = 'margin-top:10px;font-size:12px;color:#aaa;';
-      ctaDiv.innerHTML = '<span style="color:var(--accent2)">CTA:</span> ' + (parsed.cta||'');
-      hooksEl.appendChild(ctaDiv);
-      if (parsed.hashtags) {
-        const hashDiv = document.createElement('div');
-        hashDiv.style.cssText = 'margin-top:8px;font-size:11px;color:var(--accent3);';
-        hashDiv.textContent = parsed.hashtags;
-        hooksEl.appendChild(hashDiv);
-      }
-    }
-
-    // Karakter konsisten
-    const charEl = document.getElementById('characterContent');
-    if (charEl && parsed.character) {
-      charEl.innerHTML =
-        '<div style="margin-bottom:8px;"><span style="color:var(--accent);font-size:10px;letter-spacing:1px;">NAMA</span><br>' +
-        '<span style="font-size:14px;font-weight:bold;">' + (parsed.character.name||'-') + '</span></div>' +
-        '<div style="margin-bottom:8px;"><span style="color:var(--accent);font-size:10px;letter-spacing:1px;">TAMPILAN</span><br>' +
-        '<span style="font-size:12px;color:#ccc;line-height:1.6;">' + (parsed.character.appearance||'-') + '</span></div>' +
-        '<div><span style="color:var(--accent);font-size:10px;letter-spacing:1px;">ART STYLE</span><br>' +
-        '<span style="font-size:12px;color:var(--accent3)">' + (parsed.character.style||'3D render cinematic') + '</span></div>';
-    }
-
-    // Image + Video prompts per scene
-    const imgEl = document.getElementById('imagePrompts');
-    if (imgEl) {
-      imgEl.innerHTML = '';
-      (parsed.scenes || []).forEach((s, i) => {
-        if (!s) return;
-        const div = document.createElement('div');
-        div.className = 'prompt-item';
-        div.innerHTML =
-          '<div class="prompt-num">SCENE ' + (i+1) + ' — ' + (s.scene||'') + '</div>' +
-          '<div style="margin-bottom:8px;"><span style="color:var(--accent);font-size:10px;letter-spacing:1px;">🖼 IMAGE</span><br>' +
-          '<span style="font-size:12px;">' + (s.imagePrompt||'') + '</span></div>' +
-          '<div><span style="color:var(--accent3);font-size:10px;letter-spacing:1px;">🎬 VIDEO MOTION</span><br>' +
-          '<span style="font-size:12px;color:#bbb;">' + (s.videoPrompt||'') + '</span></div>';
-        imgEl.appendChild(div);
-      });
-    }
-
-    // Debug: tampilkan raw ke console
-    console.log('PARSED:', JSON.stringify(parsed, null, 2));
-    loading.classList.remove('show');
-    results.classList.add('show');
-
-  } catch (err) {
-    loading.classList.remove('show');
-    errorCard.innerHTML = '⚠️ Error: ' + (err.message || 'Gagal generate.') + '<br><small style="color:#666;word-break:break-all;" id="rawDebug"></small>';
-    errorCard.classList.add('show');
-    genBtn.disabled = false;
+function setStep(n) {
+  for (let i=1;i<=4;i++) {
+    const el = document.getElementById('ls'+i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
   }
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function generate() {
+  const topic = document.getElementById('topicInput').value.trim();
+  if (!topic) { document.getElementById('topicInput').focus(); return; }
+  if (!apiKey) { showError('Masukkan Groq API Key dulu!'); return; }
+
+  const genBtn = document.getElementById('genBtn');
+  genBtn.disabled = true;
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('errorCard').classList.remove('show');
+
+  setStep(1); await delay(500);
+  setStep(2); await delay(500);
+  setStep(3);
+
+  const prompt = `You are a TikTok/Shorts content creator. Reply with ONLY valid JSON, no extra text.
+Topic: ${topic}
+Style: ${selectedStyle}
+Language: casual Indonesian
+
+Fill this exact JSON (keep all field names exactly as shown):
+{
+  "script": "narasi bahasa Indonesia 60 detik, pisah kalimat pakai |",
+  "hook1": "hook pembuka 1",
+  "hook2": "hook pembuka 2",
+  "hook3": "hook pembuka 3",
+  "cta": "kalimat penutup",
+  "title": "judul video",
+  "hashtags": "#tag1 #tag2 #tag3 #tag4 #tag5",
+  "charName": "nama karakter",
+  "charLook": "english: gender, age, hair color, eye color, outfit, expression",
+  "charStyle": "art style contoh: 3D cinematic render",
+  "s1name": "scene 1 name",
+  "s1img": "english image generation prompt for scene 1, include character description, 9:16 portrait",
+  "s1vid": "camera motion for scene 1 eg: slow zoom in",
+  "s2name": "scene 2 name",
+  "s2img": "english image generation prompt for scene 2, include character description, 9:16 portrait",
+  "s2vid": "camera motion for scene 2",
+  "s3name": "scene 3 name",
+  "s3img": "english image generation prompt for scene 3, include character description, 9:16 portrait",
+  "s3vid": "camera motion for scene 3",
+  "s4name": "scene 4 name",
+  "s4img": "english image generation prompt for scene 4, include character description, 9:16 portrait",
+  "s4vid": "camera motion for scene 4"
+}`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 2048, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const raw = data.choices[0].message.content;
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s === -1) throw new Error('AI tidak return JSON. Coba lagi.');
+    let jsonStr = raw.slice(s, e+1).replace(/,(\s*[}\]])/g, '$1');
+    const r = JSON.parse(jsonStr);
+
+    setStep(4); await delay(300);
+
+    // Script
+    document.getElementById('scriptContent').textContent = (r.script||'').replace(/\|/g, '\n');
+
+    // Hooks
+    const hooksEl = document.getElementById('hooksContent');
+    hooksEl.innerHTML = '';
+    [r.hook1, r.hook2, r.hook3].filter(Boolean).forEach(h => {
+      const d = document.createElement('div');
+      d.className = 'hook-tag';
+      d.textContent = '🎬 ' + h;
+      hooksEl.appendChild(d);
+    });
+    const ctaD = document.createElement('div');
+    ctaD.style.cssText = 'margin-top:10px;font-size:12px;color:#aaa';
+    ctaD.innerHTML = '<span style="color:var(--accent2)">CTA:</span> ' + (r.cta||'');
+    hooksEl.appendChild(ctaD);
+    if (r.hashtags) {
+      const hd = document.createElement('div');
+      hd.style.cssText = 'margin-top:8px;font-size:11px;color:var(--accent3)';
+      hd.textContent = r.hashtags;
+      hooksEl.appendChild(hd);
+    }
+
+    // Karakter
+    document.getElementById('charContent').innerHTML =
+      '<div style="margin-bottom:8px"><span class="prompt-label" style="color:var(--accent)">NAMA</span><br><strong style="font-size:14px">' + (r.charName||'-') + '</strong></div>' +
+      '<div style="margin-bottom:8px"><span class="prompt-label" style="color:var(--accent)">TAMPILAN</span><br><span style="font-size:12px;color:#ccc;line-height:1.6">' + (r.charLook||'-') + '</span></div>' +
+      '<div><span class="prompt-label" style="color:var(--accent)">ART STYLE</span><br><span style="font-size:12px;color:var(--accent3)">' + (r.charStyle||'3D cinematic render') + '</span></div>';
+
+    // Scenes
+    const scenesEl = document.getElementById('scenesContent');
+    scenesEl.innerHTML = '';
+    [['s1name','s1img','s1vid'],['s2name','s2img','s2vid'],['s3name','s3img','s3vid'],['s4name','s4img','s4vid']].forEach(([n,i,v], idx) => {
+      if (!r[n]) return;
+      const div = document.createElement('div');
+      div.className = 'prompt-item';
+      div.innerHTML =
+        '<div class="prompt-num">SCENE ' + (idx+1) + ' — ' + r[n] + '</div>' +
+        '<div style="margin-bottom:8px"><span class="prompt-label" style="color:var(--accent)">🖼 IMAGE PROMPT</span><br>' + (r[i]||'') + '</div>' +
+        '<div><span class="prompt-label" style="color:var(--accent3)">🎬 VIDEO MOTION</span><br><span style="color:#bbb">' + (r[v]||'') + '</span></div>';
+      scenesEl.appendChild(div);
+    });
+
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('results').classList.add('show');
+
+  } catch(err) {
+    showError(err.message || 'Gagal generate. Coba lagi.');
+    genBtn.disabled = false;
+  }
+}
+
+function showError(msg) {
+  document.getElementById('loading').classList.remove('show');
+  const e = document.getElementById('errorCard');
+  e.textContent = '⚠️ ' + msg;
+  e.classList.add('show');
+}
 </script>
 </body>
 </html>
